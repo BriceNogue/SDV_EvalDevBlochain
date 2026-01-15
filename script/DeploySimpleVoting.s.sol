@@ -15,10 +15,9 @@ contract DeploySimpleVoting is Script {
 
         VoteNFT voteNft = new VoteNFT(msg.sender);
         SimpleVotingSystem simpleVotingSystem = new SimpleVotingSystem();
-        voteNft.grantRole(voteNft.MINTER_ROLE(), address(voting));
 
         vm.stopBroadcast();
-        
+
         return simpleVotingSystem;
     }
 }

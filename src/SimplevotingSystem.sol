@@ -32,7 +32,7 @@ contract SimpleVotingSystem  is Ownable, AccessControl, ERC721{
     uint private _nextTokenId;
 
     mapping(uint => Candidate) public candidates;
-    //mapping(address => bool) public voters;
+    mapping(address => bool) public voters; // 
     uint[] private candidateIds;
 
     // Evénements
@@ -65,7 +65,7 @@ contract SimpleVotingSystem  is Ownable, AccessControl, ERC721{
         require(_wallet != address(0), "Adresse invalide.");
 
         uint candidateId = candidateIds.length + 1;
-        candidates[candidateId] = Candidate(candidateId, _name, 0);
+        candidates[candidateId] = Candidate(candidateId, _name, 0, _wallet);
         candidateIds.push(candidateId);
 
         emit CandidateAdded(candidateId, _name);
@@ -104,7 +104,7 @@ contract SimpleVotingSystem  is Ownable, AccessControl, ERC721{
 
     // Resultats du vote
     function getWinner() public view returns (string memory name, uint count) {
-        require(workflowStatus == WorkflowStatus.COMPLETED, "Le vote n'est pas terminé.");
+        require(workflowStatus == WorkflowStatus.COMPLETED, "Le vote est toujours en cours.");
         
         uint winningVoteCount = 0;
         uint winningId = 0;
@@ -123,10 +123,10 @@ contract SimpleVotingSystem  is Ownable, AccessControl, ERC721{
 
     // Retrait des fonds
     function withdraw() external onlyRole(WITHDRAWER_ROLE) {
-        require(workflowStatus == WorkflowStatus.COMPLETED, "Le vote n'est pas terminé.");
+        require(workflowStatus == WorkflowStatus.COMPLETED, "Le vote est toujours en cours.");
         
         uint balance = address(this).balance;
-        require(balance > 0, "Aucun fonds à retirer.");
+        require(balance > 0, "Aucun fonds disponible pour le retrait.");
 
         (bool sent, ) = payable(msg.sender).call{value: balance}("");
         require(sent, "Echec du retrait.");
